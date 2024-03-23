@@ -6,53 +6,46 @@ attention donc lors des modifications.
 """
 import sys
 from tycat import read_instance
-
-
-def is_inside(Point,polygone):
-    """
-    Implémentation du ray casting algorithm en python !
-    """
-    xp=Point.coordinates[0]
-    yp=Point.coordinates[1]
-    intersections=0
-    segments=polygone.segments()
-    for edge in segments:
-        first_point=edge.endpoints[0]
-        second_point=edge.endpoints[1]
-        x1=first_point.coordinates[0]
-        y1=first_point.coordinates[1]
-        x2=second_point.coordinates[0]
-        y2=second_point.coordinates[1]
-        try:
-            x0=x2+(x2-x1)*(yp-y2)/(y2-y1)
-            if (yp<y1)!=(yp<y2) and xp<x0:
-                intersections+=1
-        except ZeroDivisionError:
-            continue
-    return intersections%2==1
-
+from geo import segment,point,polygon
+ 
+def is_inside(Point , polygon):
+     x,y = Point.coordinates
+     cont = 0
+     for sengment in polygon.segments():
+         head1,head2 = sengment.endpoints
+         x1,y1 = head1.coordinates
+         x2,y2 = head2.coordinates
+         if (y<y1) != (y<y2) :
+             if (x < x1 + (x1-x2)*((y-y1)/(y1-y2)) or x < x2 + ((y -y2)/(y1-y2))*(x1-x2)):
+                 cont += 1
+     return cont%2 == 1
+ 
+def est_inclu(poly1,poly2):
+     point = poly1.points[0]
+     return is_inside(point,poly2)
+ 
 def trouve_inclusions(polygones):
-    """
-    renvoie le vecteur des inclusions
-    la ieme case contient l'indice du polygone
-    contenant le ieme polygone (-1 si aucun).
-    (voir le sujet pour plus d'info)
-    """
-    polygones_number = len(polygones)
-    inclusions_liste = [-1] * polygones_number
+     """
+     renvoie le vecteur des inclusions
+     la ieme case contient l'indice du polygone
+     contenant le ieme polygone (-1 si aucun).
+     (voir le sujet pour plus d'info)
+     """
+     inclusions = []
+     dic_aires = dict()
+     for i in range (len(polygones)):
+         dic_aires[i] = abs(polygones[i].area())
+     for j in range(len(polygones)):
+         inclusions += [-1]
+         for i in range(len(polygones)):
+             if dic_aires[i]>dic_aires[j] :
+                 if inclusions[j]!=-1 and dic_aires[i] >= dic_aires[inclusions[j]]:
+                        continue
+                 elif est_inclu(polygones[j],polygones[i]):
+                        inclusions[j] = i
+         
+     return inclusions 
 
-    for i in range(polygones_number):
-        point_ref = polygones[i].points[0]  # Choisissez un point de référence dans le polygone i
-        reste_polygones = [(j,polygones[j]) for j in range(polygones_number) if j != i]
-
-        for j, poly in reste_polygones:
-            if is_inside(point_ref, poly):
-                inclusions_liste[i] = j
-                break  # Une fois qu'on a trouvé l'inclusion, on peut passer au polygone suivant
-            else:
-                continue
-
-    return inclusions_liste
 
 
 def main():
