@@ -49,18 +49,16 @@ def trouve_inclusions(polygones):
      inclusions = []
      quadrant = []
      dic_aires = dict()
-     for i in range (len(polygones)):
-         dic_aires[i] = abs(polygones[i].area())
-     for i in range (len(polygones)):
-         quadrant.append(polygones[i].bounding_quadrant())
+    for i, poly in enumerate(polygones):
+        dic_aires[i] = abs(poly.area())
+    quadrants = [poly.bounding_quadrant() for poly in polygones]
      for j in range(len(polygones)):
          inclusions += [-1]
          for i in range(len(polygones)):
-             if dic_aires[i]>dic_aires[j] and quadrant_inclus(quadrant[j],quadrant[i]):
-                 if inclusions[j]!=-1 and dic_aires[i] >= dic_aires[inclusions[j]]:
-                        continue
-                 elif est_inclu(polygones[j],polygones[i]):
-                        inclusions[j] = i
+             if i != j and dic_aires[i]>dic_aires[j] and quadrant_inclus(quadrants[j],quadrants[i]):
+                 if inclusions[j] == -1 or dic_aires[i] < dic_aires[inclusions[j]]:
+                     if est_inclu(polygones[j],polygones[i]):
+                         inclusions[j] = i
          
      return inclusions 
 
