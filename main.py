@@ -20,7 +20,7 @@ def is_inside(Point , polygon):
          x1,y1 = head1.coordinates
          x2,y2 = head2.coordinates
          if (y<y1) != (y<y2) :
-             if (x < x1 + (x1-x2)*((y-y1)/(y1-y2)) or x < x2 + ((y -y2)/(y1-y2))*(x1-x2)):
+             if (x < x1 + (x1-x2)*(y-y1)/(y1-y2) :
                  cont += 1
      return cont%2 == 1
  
@@ -52,15 +52,17 @@ def trouve_inclusions(polygones):
     for i, poly in enumerate(polygones):
         dic_aires[i] = abs(poly.area())
     quadrants = [poly.bounding_quadrant() for poly in polygones]
-     for j in range(len(polygones)):
-         inclusions += [-1]
-         for i in range(len(polygones)):
-             if i != j and dic_aires[i]>dic_aires[j] and quadrant_inclus(quadrants[j],quadrants[i]):
-                 if inclusions[j] == -1 or dic_aires[i] < dic_aires[inclusions[j]]:
-                     if est_inclu(polygones[j],polygones[i]):
-                         inclusions[j] = i
-         
+    indices_tries = sorted(range(n), key=lambda k: dic_aires[k])
+    inclusions = [-1] * n
+    for j in range(n):
+        for i in range(j, n):
+            if i != j and indices_tries[j] != indices_tries[i] and quadrant_inclus(quadrant[indices_tries[j]],quadrant[indices_tries[i]]):
+                if inclusions[indices_tries[j]] == -1 or dic_aires[indices_tries[i]] < dic_aires[inclusions[indices_tries[j]]]:
+                    if est_inclu(polygones[indices_tries[j]],polygones[indices_tries[i]]):
+                        inclusions[indices_tries[j]] = indices_tries[i]
+
      return inclusions 
+         
 
 
 
@@ -70,14 +72,11 @@ def main():
     trouve les inclusions
     affiche l'arbre en format texte
     """
-    t1 = time()
     for fichier in sys.argv[1:]:
         polygones = read_instance(fichier)
         inclusions = trouve_inclusions(polygones)
         print(inclusions)
-    t2 = time()
-    print(t2-t1)
-
+    
 
 if __name__ == "__main__":
     main()
