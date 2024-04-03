@@ -4,10 +4,7 @@ fichier principal pour la detection des inclusions.
 ce fichier est utilise pour les tests automatiques.
 attention donc lors des modifications.
 """
-import sys
-from tycat import read_instance
 
-from time import time
 import sys
 from tycat import read_instance
 from geo import segment,point,polygon,quadrant
@@ -23,23 +20,9 @@ def is_inside(Point , polygon):
              if (x < x1 + (x1-x2)*(y-y1)/(y1-y2) :
                  cont += 1
      return cont%2 == 1
- 
-def est_inclu(poly1,poly2):
-     point = poly1.points[0]
-     return is_inside(point,poly2)
 
-def quadrant_inclus(quadrant1, quadrant2):
-    """
-    Vérifie si quadrant1 est strictement inclus dans quadrant2.
-    """
-    for min1, min2, max1, max2 in zip(quadrant1.min_coordinates, quadrant2.min_coordinates,
-                                       quadrant1.max_coordinates, quadrant2.max_coordinates):
-        if not (min2 < min1 < max1 < max2):
-            return False
-    return True
 
- 
-def trouve_inclusions(polygones):
+ def trouve_inclusions(polygones):
      """
      renvoie le vecteur des inclusions
      la ieme case contient l'indice du polygone
@@ -48,22 +31,25 @@ def trouve_inclusions(polygones):
      """
      inclusions = []
      quadrant = []
-     quadrants = [poly.bounding_quadrant() for poly in polygones]
+     n = len(polygones)
+     for i in range (n):
+         polyq = polygones[i].bounding_quadrant()
+         quadrant.append([polyq.max_coordinates[0],polyq.max_coordinates[1],polyq.min_coordinates[0],polyq.min_coordinates[1]])
      indices_tries = sorted(range(n), key=lambda k: quadrant[k].max_coordinates[0])
      inclusions = [-1] * n
      for j in range(n):
-         i = j+1
-         ind_j = indices_tries[j]
-         while i < n :
-             ind_i = indices_tries[i]
-             if quadrant_inclus(quadrant[ind_j],quadrant[ind_i]):
-                 if est_inclu(polygones[ind_j],polygones[ind_i]):
-                     inclusions[ind_j] = ind_i
-                     break
-             i+=1
+        i = j+1
+        ind_j = indices_tries[j]
+        while i < n :
+            ind_i = indices_tries[i]
+            if quadrant[ind_j][0]<quadrant[ind_i][0] and quadrant[ind_j][1]<quadrant[ind_i][1] and quadrant[ind_i][2]<quadrant[ind_j][2] and quadrant[ind_i][3]<quadrant[ind_j][3]:
+                if is_inside(polygones[ind_j].points[0],polygones[ind_i]):
+                    inclusions[ind_j] = ind_i
+                    break
+            i+=1
 
      return inclusions 
-         
+        
 
 
 
