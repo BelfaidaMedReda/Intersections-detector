@@ -30,9 +30,10 @@ class Polygon:
 
     """
 
-    def __init__(self, points):
+    def __init__(self, points,parent=None):
         assert len(points) > 2
         self.points = points
+        self.parent=parent
 
     @classmethod
     def square(cls, start_x, start_y, side):
@@ -105,3 +106,8 @@ class Polygon:
     def __str__(self):
         points = ",\n".join(str(p) for p in self.points)
         return "Polygon([" + points + "])\n"
+
+    def sides_middles(self):
+        for i in range(len(self.points)):
+            yield Point((self.points[i].x + self.points[(i + 1) % len(self.points)].x) / 2,
+                        (self.points[i].y + self.points[(i + 1) % len(self.points)].y) / 2)

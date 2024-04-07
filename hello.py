@@ -34,7 +34,7 @@ et/ou segments et/ou polygones (ou juste un point/segment/polygone)")
         )
     # un carre
     carre = Polygon.square(-1, -1, 2)
-    tycat(origine, cercle, segments, carre)
+    tycat(carre)
 
 
 main()
