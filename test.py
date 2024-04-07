@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import matplotlib.pyplot as plt
-from main_naif import retourne_temps_naif
-from main2 import retourne_temps2
 from main import retourne_temps
+from main2 import retourne_temps2
+from main1 import retourne_temps1
 from geo.segment import Segment
 from geo.polygon import Polygon
 from geo.point import Point
@@ -20,7 +20,7 @@ def carres_imbriques(width,height,n):
 
 temps = []
 temps2= []
-temps_naif=[]
+temps1=[]
 nb_poly = []
 
 def carres_alignes(n, taille_initiale, increment):
@@ -56,10 +56,10 @@ for i in range(1000,10000,1000):
     nb_poly.append(i)
     temps2.append(retourne_temps2(carres_alignes(i,50,10)))
     temps.append(retourne_temps(carres_alignes(i,50,10)))
-    temps_naif.append(retourne_temps_naif(carres_alignes(i,50,10)))
+    temps1.append(retourne_temps1(carres_alignes(i,50,10)))
 
 plt.plot(nb_poly,temps2,'r',label="algo3")
 plt.plot(nb_poly,temps,'b',label="algo2")
-plt.plot(nb_poly,temps_naif,'g',label="algo naif")
+plt.plot(nb_poly,temps1,'g',label="algo naif")
 plt.grid()
 plt.show()

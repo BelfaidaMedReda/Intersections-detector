@@ -3,6 +3,9 @@
 fichier principal pour la detection des inclusions.
 ce fichier est utilise pour les tests automatiques.
 attention donc lors des modifications.
+
+Ce script est le script de l'algo optimisé par une première amélioration
+
 """
 from time import time
 import sys
@@ -17,9 +20,21 @@ def is_inside(Point , polygon):
          x1,y1 = head1.coordinates
          x2,y2 = head2.coordinates
          if (y<y1) != (y<y2) :
-             if x < x1 + (x1-x2)*(y-y1)/(y1-y2):
+             if x < x1 + (x1-x2)*(y-y1)/(y1-y2) :
                  cont += 1
      return cont%2 == 1
+ 
+
+def quadrant_inclus(quadrant1, quadrant2):
+    """
+    Vérifie si quadrant1 est strictement inclus dans quadrant2.
+    """
+    for min1, min2, max1, max2 in zip(quadrant1.min_coordinates, quadrant2.min_coordinates,
+                                       quadrant1.max_coordinates, quadrant2.max_coordinates):
+        if not (min2 < min1 < max1 < max2):
+            return False
+    return True
+
  
 def trouve_inclusions(polygones):
      """
@@ -28,25 +43,26 @@ def trouve_inclusions(polygones):
      contenant le ieme polygone (-1 si aucun).
      (voir le sujet pour plus d'info)
      """
+     n = len(polygones)
      inclusions = []
      quadrant = []
-     n = len(polygones)
+     dic_aires = dict()
      for i in range (n):
-         polyq = polygones[i].bounding_quadrant()
-         quadrant.append([polyq.max_coordinates[0],polyq.max_coordinates[1],polyq.min_coordinates[0],polyq.min_coordinates[1]])
-     indices_tries = sorted(range(n), key=lambda k: quadrant[k][0])
+         dic_aires[i] = abs(polygones[i].area())
+     for i in range (n):
+         quadrant.append(polygones[i].bounding_quadrant())
+     indices_tries = sorted(range(n), key=lambda k: dic_aires[k])
      inclusions = [-1] * n
      for j in range(n):
         i = j+1
         ind_j = indices_tries[j]
         while i < n :
             ind_i = indices_tries[i]
-            if quadrant[ind_j][0]<quadrant[ind_i][0] and quadrant[ind_j][1]<quadrant[ind_i][1] and quadrant[ind_i][2]<quadrant[ind_j][2] and quadrant[ind_i][3]<quadrant[ind_j][3]:
-                if is_inside(polygones[ind_j].points[0],polygones[ind_i]):
-                    inclusions[ind_j] = ind_i
-                    break
+            if ind_j != ind_i and quadrant_inclus(quadrant[ind_j],quadrant[ind_i]):
+                if inclusions[ind_j] == -1 or dic_aires[ind_i] < dic_aires[inclusions[ind_j]]:
+                    if is_inside(polygones[ind_j].points[0],polygones[ind_i]):
+                        inclusions[ind_j] = ind_i
             i+=1
-
      return inclusions 
 
 
@@ -61,8 +77,7 @@ def main():
         polygones = read_instance(fichier)
         inclusions = trouve_inclusions(polygones)
         print(inclusions)
-        
-def retourne_temps(polygones):
+def retourne_temps1(polygones):
     start_time = time()
     trouve_inclusions(polygones)
     end_time = time()
@@ -71,5 +86,3 @@ def retourne_temps(polygones):
 
 if __name__ == "__main__":
     main()
-
-
